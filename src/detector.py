@@ -6,7 +6,7 @@ import re
 from difflib import SequenceMatcher
 import numpy as np
 from src.models import Billete
-import json,os
+import json,os,uuid
 
 #TTS
 from TTS.api import TTS
@@ -151,11 +151,11 @@ class BilleteDetector:
 
 class LLM:
 
-  def gen_oudia(text):
+  def gen_oudia(self,text):
     tts=TTS('tts_models/en/ljspeech/fast_pitch')
     # if spanish:
     #   tts=TTS('tts_models/en/jenny/jenny')
-    aud_path='audio.wav'
+    aud_path='audio/audio.wav'
     tts.tts_to_file(text=text, file_path=aud_path)
     return aud_path
   
@@ -318,8 +318,8 @@ class LLM:
     input_ids = self.tokenizer(input_text, return_tensors="pt").to("mps")#.to("cpu")#.to('cuda)
 
     outputs = self.model.generate(**input_ids, max_new_tokens=len(billetesData)*25,
-                            temperature=0.7,  # Make output less random
-                            top_p=0.9,        # Use nucleus sampling
+                            temperature=0.5,  # Make output less random
+                            top_p=0.8,        # Use nucleus sampling
                             top_k=60 )
     ans=self.tokenizer.decode(outputs[0])
     print(ans)
@@ -332,6 +332,9 @@ class LLM:
       generated_text=self.spanish_tr(generated_text)
     audio=None
     if voice:
-      audio=self.gen_oudia(generated_text)
+      audio_filename = f"{uuid.uuid4()}.wav"
+      audio_path = f"audio/{audio_filename}"
+      os.makedirs("audio", exist_ok=True)
+      audio_path = self.gen_oudia(generated_text)
 
-    return generated_text,audio
+    return generated_text,audio_path

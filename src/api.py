@@ -3,8 +3,8 @@ from fastapi import FastAPI, Depends, Query,UploadFile, File, HTTPException, sta
 from src.config import get_settings
 from src.detector import BilleteDetector,LLM#, gen_oudia
 from functools import cache
-from fastapi.responses import Response,JSONResponse
-import io
+from fastapi.responses import Response,JSONResponse,FileResponse
+import io,os
 from PIL import Image, UnidentifiedImageError
 import numpy as np
 import cv2
@@ -75,11 +75,18 @@ def info_billetes(
     # Create the response structure
     response_data = {"description": generated_text}
     
-    if voice:
-        response_data["audio_path"] = audio_path
+    if voice and audio_path:
+        # Include the URL to access the audio file
+        response_data["audio_url"] = f"/audio/{os.path.basename(audio_path)}"
     
     return JSONResponse(content=response_data)
     
+@app.get("/audio/{filename}")
+def get_audio_file(filename: str):
+    file_path = os.path.join("audio", filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    return FileResponse(file_path, media_type="audio/wav")
 
 
 
