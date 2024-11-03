@@ -82,7 +82,7 @@ def info_billetes(
     return JSONResponse(content=response_data)
     
 @app.get("/audio/{filename}")
-def get_audio_file(filename: str):
+def get_audio_file(filename: str='audio.wav'):
     file_path = os.path.join("audio", filename)
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Audio file not found")

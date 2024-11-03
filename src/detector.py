@@ -5,9 +5,12 @@ import matplotlib.pyplot as plt
 import re
 from difflib import SequenceMatcher
 import numpy as np
-from src.models import Billete
+from models import Billete
 import json,os,uuid
+from config import get_settings
 
+
+SETTINGS = get_settings()
 #TTS
 from TTS.api import TTS
 
@@ -16,7 +19,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
 # Load YOLO model 
-Imgmodel = YOLO('model/bolivian_money_detector_MK_I.pt')  # Path to your YOLO model
+Imgmodel = YOLO(SETTINGS.model_A_path)  # Path to your YOLO model
 
 # Function to clean and process strings
 def clean_string(s):
@@ -74,7 +77,7 @@ def remove_duplicates(boxes, confidences):
 
 # Main function to analyze image
 class BilleteDetector:
-  def showImg(self,img, n, output_json='detecciones.json'):
+  def showImg(self,img, n, output_json=SETTINGS.log_file):
       
       img_orig = cv2.imread(img) if isinstance(img, str) else img.copy()
       #img_orig = img.copy()
@@ -156,15 +159,15 @@ class LLM:
 
     if spanish:
         # Usar TTS para español
-        tts = TTS('tts_models/es/mai/tacotron2-DDC')
+        tts = TTS(SETTINGS.tts_spanish)
         tts.tts_to_file(text=text, file_path=aud_path)
     else:
         # Usar Coqui TTS para inglés
-        tts = TTS('tts_models/en/ljspeech/fast_pitch')
+        tts = TTS(SETTINGS.tts_english)
         tts.tts_to_file(text=text, file_path=aud_path)
     return aud_path
   
-  modelo='meta-llama/Llama-3.2-1B'
+  modelo=SETTINGS.llm
   #modelo='google/gemma-2-2b-it'
   device = "mps" if torch.backends.mps.is_available() else "cpu"
   print(device)
@@ -178,22 +181,26 @@ class LLM:
 
   def spanish_tr(self,input_text):
     input_text = f"""
-    Translate From English to spanish, de Ingles a Español:
+    Translate the following text From English to spanish, de Ingles a Español:
 
-    {input_text}
-    Traduction: """
+    "{input_text}"
+
+    If you detect words like Banknote translate them as "Billete", make the translation like if you were describing it to a blind person.
+
+    Translation: """
 
     print(self.device)
+    print(input_text)
     input_ids = self.tokenizer(input_text, return_tensors="pt").to("mps")#.to("cuda")#.to("cpu")#
     #model.to("cpu")#comment this if in colab
     outputs = self.model.generate(**input_ids, max_new_tokens=150,
                             do_sample=True,
-                            temperature=0.4,  # Make output less random
-                            top_p=0.9,        # Use nucleus sampling
+                            temperature=0.5,  # Make output less random
+                            top_p=0.8,        # Use nucleus sampling
                             top_k=60 )
     ans=self.tokenizer.decode(outputs[0])
 
-    ans=ans.split("Traduction:")[1].strip()
+    ans=ans.split("Translation:")[1].strip()
     ans=ans.split("\n")[0]
     return ans
   
@@ -335,11 +342,11 @@ class LLM:
     print(generated_text)
     if spanish:
       generated_text=self.spanish_tr(generated_text)
-    audio=None
+    audio_path=None
     if voice:
-      audio_filename = f"{uuid.uuid4()}.wav"
-      audio_path = f"audio/{audio_filename}"
-      os.makedirs("audio", exist_ok=True)
+      #audio_filename = f"{uuid.uuid4()}.wav"
+      #audio_path = f"audio/{audio_filename}"
+      #os.makedirs("audio", exist_ok=True)
       audio_path = self.gen_oudia(generated_text,spanish)
 
     return generated_text,audio_path
