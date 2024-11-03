@@ -151,12 +151,17 @@ class BilleteDetector:
 
 class LLM:
 
-  def gen_oudia(self,text):
-    tts=TTS('tts_models/en/ljspeech/fast_pitch')
-    # if spanish:
-    #   tts=TTS('tts_models/en/jenny/jenny')
-    aud_path='audio/audio.wav'
-    tts.tts_to_file(text=text, file_path=aud_path)
+  def gen_oudia(self,text, spanish=False):
+    aud_path = 'audio/audio.wav'
+
+    if spanish:
+        # Usar TTS para español
+        tts = TTS('tts_models/es/mai/tacotron2-DDC')
+        tts.tts_to_file(text=text, file_path=aud_path)
+    else:
+        # Usar Coqui TTS para inglés
+        tts = TTS('tts_models/en/ljspeech/fast_pitch')
+        tts.tts_to_file(text=text, file_path=aud_path)
     return aud_path
   
   modelo='meta-llama/Llama-3.2-1B'
@@ -335,6 +340,6 @@ class LLM:
       audio_filename = f"{uuid.uuid4()}.wav"
       audio_path = f"audio/{audio_filename}"
       os.makedirs("audio", exist_ok=True)
-      audio_path = self.gen_oudia(generated_text)
+      audio_path = self.gen_oudia(generated_text,spanish)
 
     return generated_text,audio_path
