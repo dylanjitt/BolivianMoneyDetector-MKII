@@ -17,6 +17,7 @@ Here are the dependencies and libraries needed to run this project:
 - pydantic
 - TTS
 - gradio
+- PyTorch
 
 here's the list of the commands to install a bunch of these dependencies:
 ```
@@ -36,7 +37,7 @@ here's the list of the commands to install a bunch of these dependencies:
 !pip install functools
 !pip install pydantic
 ```
-
+The project is configured mainly to run on MacOS, on torch.device configured on 'mps', if you have an NVIDIA graphics card and the CUDA library configured on your system, please be free to change the 'mps' value to 'cuda' and torch.backend.mps to cuda on line 172 of `detector.py` file inside /src.
 
 #### Run Local FastAPI
 To run de api locally you have to use the following command:
