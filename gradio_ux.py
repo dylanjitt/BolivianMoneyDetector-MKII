@@ -1,13 +1,13 @@
 import gradio as gr
-from detector import LLM, BilleteDetector
+from src.detector import LLM, BilleteDetector
 
 # Initialize your detector and language model instances
 detector = BilleteDetector()
 llm = LLM()
 
-def process_image(img, saldo):
+def process_image(img):
     # Process image using BilleteDetector's `showImg` method
-    new_saldo, processed_img = detector.showImg(img, saldo)
+    new_saldo, processed_img = detector.showImg(img)
     return new_saldo, processed_img
 
 def generate_text_response(spanish, voice):
@@ -30,7 +30,7 @@ def main():
                 image_output = gr.Image(label="Processed Image")  # To display processed image
                 gr.Button("Process Image").click(
                     fn=process_image,
-                    inputs=[image_input, saldo],
+                    inputs=[image_input],
                     outputs=[saldo, image_output]
                 )
 

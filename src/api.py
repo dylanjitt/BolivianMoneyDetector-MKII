@@ -28,7 +28,7 @@ def get_llm()-> LLM:
 def detect_money(
   threshold: float = 0.5,
   file: UploadFile = File(...),
-  n:float=0.0,
+  # n:float=0.0,
   detector: BilleteDetector=Depends(get_bill_detector)
 )->Response:
   img_stream = io.BytesIO(file.file.read())
@@ -55,7 +55,7 @@ def detect_money(
       raise HTTPException(
           status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="Image format not supported"
       )
-  total,img_det=detector.showImg(img_bgr,n)
+  total,img_det=detector.showImg(img_bgr)
 
   img_pil = Image.fromarray(img_det)
   image_stream = io.BytesIO()
