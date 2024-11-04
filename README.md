@@ -3,7 +3,42 @@ System to detect coins and banknotes of the bolivian currency, focused on sight 
 
 ![BolivianMoneyDetectorII-39](https://github.com/user-attachments/assets/d0720784-9d48-4925-96e1-7a2f5e4699dd)
 
-#### Ejecucion local
+Here are the dependencies and libraries needed to run this project:
+- opencv_python
+- easyocr
+- matplotlib
+- re
+- numpy
+- transformers
+- huggingface_hub
+- ultralytics
+- functools
+- PIL
+- pydantic
+- TTS
+- gradio
+
+here's the list of the commands to install a bunch of these dependencies:
+```
+!pip install numpy==1.23
+!pip install --upgrade scipy
+!pip install TTS
+!pip install easyocr
+!pip install opencv-python
+!pip install gradio
+!pip install matplotlib
+!pip install torch
+!pip install torchvision
+!pip install huggingface_hub
+!pip install transformers
+!pip install fastapi
+!pip install ultralytics
+!pip install functools
+!pip install pydantic
+```
+
+
+#### Run Local FastAPI
 To run de api locally you have to use the following command:
 ```
 fastapi dev src/api.py
