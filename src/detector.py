@@ -390,189 +390,158 @@ class LLM:
 
   Response:
   """
+    if len(billetesData)<3:
+      input_text = """
+  Given a JSON list of banknotes with their values and bounding box coordinates, analyze the position coordinates of each banknote to determine its approximate location (e.g.,"top","bottom","left","right", "top left," "bottom right," "center"), relative to the other banknotes. After describing the locations of all banknotes, calculate the total sum and include it in the final sentence in the format: "So, in total, you have (total) Bolivianos." Use this format for each entry and make the description clear and concise. Here are a few examples to guide the model:
 
-#     input_text = """
-#   Given a JSON list of banknotes with their values and bounding box coordinates, analyze the position coordinates of each banknote to determine its approximate location (e.g.,"top","bottom","left","right", "top left," "bottom right," "center"), relative to the other banknotes. After describing the locations of all banknotes, calculate the total sum and include it in the final sentence in the format: "So, in total, you have (total) Bolivianos." Use this format for each entry and make the description clear and concise. Here are a few examples to guide the model:
+  Example 1:
+  [
+    {
+        "value": 50.0,
+        "position": [[169, 433], [610, 665]]
+    }
+  ]
 
-#   Example 1:
-#   [
-#     {
-#         "value": 50.0,
-#         "position": [[169, 433], [610, 665]]
-#     }
-#   ]
-
-#   Response: The only banknote detected in the image is a 50 Bolivianos banknote.
+  Response: The only banknote detected in the image is a 50 Bolivianos banknote.
 
 
-#   Example 2:
+  Example 2:
 
-#   [
-#     {
-#         "value": 20.0,
-#         "position": [[173, 219], [601, 426]]
-#     },
-#     {
-#         "value": 10.0,
-#         "position": [[613, 221], [1025, 428]]
-#     }
-#   ]
+  [
+    {
+        "value": 20.0,
+        "position": [[173, 219], [601, 426]]
+    },
+    {
+        "value": 10.0,
+        "position": [[613, 221], [1025, 428]]
+    }
+  ]
 
-#   Response: The banknote on the left is 20 Bolivianos, and the one on the right is 10 Bolivianos. So, in total, you have 30 Bolivianos.
+  Response: The banknote on the left is 20 Bolivianos, and the one on the right is 10 Bolivianos. So, in total, you have 30 Bolivianos.
 
-#   Example 3:
+  Example 3:
 
-#   [
-#     {
-#         "value": 100.0,
-#         "position": [[150, 450], [600, 800]]
-#     }
-#   ]
-#   Response: The only banknote detected in the image is a 100 Bolivianos banknote.
+  [
+    {
+        "value": 100.0,
+        "position": [[150, 450], [600, 800]]
+    }
+  ]
+  Response: The only banknote detected in the image is a 100 Bolivianos banknote.
 
-#   Example 4:
+  Example 4:
 
-#   [
-#     {
-#         "value": 5.0,
-#         "position": [[0, 0], [150, 100]]
-#     },
-#     {
-#         "value": 20.0,
-#         "position": [[300, 300], [450, 400]]
-#     }
-# ]
-#   Response: The banknote at the top left is 5 Bolivianos, and the one in the center is 20 Bolivianos. So, in total, you have 25 Bolivianos.
+  [
+    {
+        "value": 5.0,
+        "position": [[0, 0], [150, 100]]
+    },
+    {
+        "value": 20.0,
+        "position": [[300, 300], [450, 400]]
+    }
+]
+  Response: The banknote at the top left is 5 Bolivianos, and the one in the center is 20 Bolivianos. So, in total, you have 25 Bolivianos.
 
-#   Example 5:
+  Example 5:
 
-#   [
-#       {
-#           "value": 50.0,
-#           "position": [[169, 433], [610, 665]]
-#       },
-#       {
-#           "value": 10.0,
-#           "position": [[600, 11], [1005, 221]]
-#       },
-#       {
-#           "value": 10.0,
-#           "position": [[176, 0], [604, 221]]
-#       },
-#       {
-#           "value": 50.0,
-#           "position": [[636, 452], [1046, 677]]
-#       },
-#       {
-#           "value": 20.0,
-#           "position": [[173, 219], [601, 426]]
-#       },
-#       {
-#           "value": 20.0,
-#           "position": [[613, 221], [1025, 428]]
-#       }
-#   ]
-#   Response: On the bottom left, there’s a 50 Bolivianos banknote. Toward the top right, you’ll find a 10 Bolivianos banknote. In the top left, there’s another 10 Bolivianos banknote. At the center right, there’s a 50 Bolivianos banknote. Toward the center left, there’s a 20 Bolivianos banknote. Finally, at the center right, you’ll find another 20 Bolivianos banknote. So, in total, you have 160 Bolivianos.
+  [
+      {
+          "value": 50.0,
+          "position": [[169, 433], [610, 665]]
+      },
+      {
+          "value": 10.0,
+          "position": [[600, 11], [1005, 221]]
+      },
+      {
+          "value": 10.0,
+          "position": [[176, 0], [604, 221]]
+      },
+      {
+          "value": 50.0,
+          "position": [[636, 452], [1046, 677]]
+      },
+      {
+          "value": 20.0,
+          "position": [[173, 219], [601, 426]]
+      },
+      {
+          "value": 20.0,
+          "position": [[613, 221], [1025, 428]]
+      }
+  ]
+  Response: On the bottom left, there’s a 50 Bolivianos banknote. Toward the top right, you’ll find a 10 Bolivianos banknote. In the top left, there’s another 10 Bolivianos banknote. At the center right, there’s a 50 Bolivianos banknote. Toward the center left, there’s a 20 Bolivianos banknote. Finally, at the center right, you’ll find another 20 Bolivianos banknote. So, in total, you have 160 Bolivianos.
 
-#   Example 6: 
+  Example 6: 
 
-#   [
-#     {
-#         "value": 10.0,
-#         "position": [[400, 100], [600, 300]]
-#     },
-#     {
-#         "value": 50.0,
-#         "position": [[150, 500], [600, 800]]
-#     }
-# ]
+  [
+    {
+        "value": 10.0,
+        "position": [[400, 100], [600, 300]]
+    },
+    {
+        "value": 50.0,
+        "position": [[150, 500], [600, 800]]
+    }
+]
 
-#   Response: The banknote on the top is 10 Bolivianos, and the one at the bottom is 50 Bolivianos. So, in total, you have 60 Bolivianos.
+  Response: The banknote on the top is 10 Bolivianos, and the one at the bottom is 50 Bolivianos. So, in total, you have 60 Bolivianos.
 
-#   Example 7: 
+  Example 7: 
 
-#   [
-#     {
-#         "value": 20.0,
-#         "position": [[200, 600], [500, 900]]
-#     },
-#     {
-#         "value": 10.0,
-#         "position": [[650, 200], [850, 400]]
-#     },
-#     {
-#         "value": 100.0,
-#         "position": [[300, 100], [800, 300]]
-#     },
-#     {
-#         "value": 5.0,
-#         "position": [[50, 50], [200, 100]]
-#     }
-# ]
+  [
+    {
+        "value": 20.0,
+        "position": [[200, 600], [500, 900]]
+    },
+    {
+        "value": 10.0,
+        "position": [[650, 200], [850, 400]]
+    },
+    {
+        "value": 100.0,
+        "position": [[300, 100], [800, 300]]
+    },
+    {
+        "value": 5.0,
+        "position": [[50, 50], [200, 100]]
+    }
+]
 
-#   Response: At the bottom center, there's a 20 Bolivianos banknote. Toward the center right, you’ll find a 10 Bolivianos banknote. In the top center, there’s a 100 Bolivianos banknote. Finally, at the very top left, there’s a 5 Bolivianos banknote. So, in total, you have 135 Bolivianos.
+  Response: At the bottom center, there's a 20 Bolivianos banknote. Toward the center right, you’ll find a 10 Bolivianos banknote. In the top center, there’s a 100 Bolivianos banknote. Finally, at the very top left, there’s a 5 Bolivianos banknote. So, in total, you have 135 Bolivianos.
   
-#   Example 8:
+  Example 8:
 
-#   [
-#     {
-#         "value": 10.0,
-#         "position": [[150, 250], [400, 450]]
-#     },
-#     {
-#         "value": 20.0,
-#         "position": [[450, 250], [700, 450]]
-#     }
-# ]
+  [
+    {
+        "value": 10.0,
+        "position": [[150, 250], [400, 450]]
+    },
+    {
+        "value": 20.0,
+        "position": [[450, 250], [700, 450]]
+    }
+]
 
-#   Response: The banknote on the left is 10 Bolivianos, and the one on the right is 20 Bolivianos. So, in total, you have 30 Bolivianos.
+  Response: The banknote on the left is 10 Bolivianos, and the one on the right is 20 Bolivianos. So, in total, you have 30 Bolivianos.
 
-#   Example 9:
+  Example 9:
 
-#   [
-#     {
-#         "value": 100.0,
-#         "position": [[300, 300], [600, 600]]
-#     }
-#   ]
+  [
+    {
+        "value": 100.0,
+        "position": [[300, 300], [600, 600]]
+    }
+  ]
 
-#   Response: The only banknote detected in the image is a 100 Bolivianos.
+  Response: The only banknote detected in the image is a 100 Bolivianos.
 
-#   Example 10:
+  Question:"""+billetesData_str+"""
 
-#   [
-#       {
-#           "value": 50.0,
-#           "position": [[169, 433], [610, 665]]
-#       },
-#       {
-#           "value": 10.0,
-#           "position": [[600, 11], [1005, 221]]
-#       },
-#       {
-#           "value": 10.0,
-#           "position": [[176, 0], [604, 221]]
-#       },
-#       {
-#           "value": 50.0,
-#           "position": [[636, 452], [1046, 677]]
-#       },
-#       {
-#           "value": 20.0,
-#           "position": [[173, 219], [601, 426]]
-#       },
-#       {
-#           "value": 20.0,
-#           "position": [[613, 221], [1025, 428]]
-#       }
-#   ]
-#   Response: On the bottom left, there’s a 50 Bolivianos banknote. Toward the top right, you’ll find a 10 Bolivianos banknote. In the top left, there’s another 10 Bolivianos banknote. At the center right, there’s a 50 Bolivianos banknote. Toward the center left, there’s a 20 Bolivianos banknote. Finally, at the center right, you’ll find another 20 Bolivianos banknote. So, in total, you have 160 Bolivianos.
-
-
-#   Question:"""+billetesData_str+"""
-
-#   Response:
-#   """
+  Response:
+  """
 
 
     input_ids = self.tokenizer(input_text, return_tensors="pt").to("mps")#.to("cpu")#.to('cuda)
@@ -586,7 +555,7 @@ class LLM:
     if "Response:" in ans:
       generated_text = ans.split("Response:")[-1].strip()
 
-    generated_text=re.split(r"<\|end_of_text\|>|Example", generated_text)[0].strip()
+    generated_text=re.split(r"<\|end_of_text\|>|Example|Question:", generated_text)[0].strip()
     print(generated_text)
     if spanish:
       generated_text=self.spanish_tr(generated_text)
