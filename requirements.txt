@@ -1,0 +1,14 @@
+numpy==1.23
+scipy
+TTS
+easyocr
+opencv-python
+gradio
+matplotlib
+torch
+torchvision
+huggingface_hub
+transformers
+fastapi
+ultralytics
+pydantic
